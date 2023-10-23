@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Reshape, Embedding, Dense, LSTM, GRU, Bidirectional, Dropout, Conv1D, MaxPooling1D, Attention, Flatten# Normalization
+from tensorflow.keras.layers import Reshape, Embedding, Dense, LSTM, GRU, Bidirectional, Dropout, Conv1D, MaxPooling1D, Attention, Flatten, MultiHeadAttention, Add, LayerNormalization
 from tensorflow.keras.regularizers import L1L2
 from tensorflow.keras.layers.experimental.preprocessing import Normalization
 from tensorflow.keras import Input, Model
@@ -18,10 +18,10 @@ def lstm_model(window_size, num_variables, X_train, num_outputs):
     norm_layer = Normalization(input_shape=(window_size, num_variables))
     norm_layer.adapt(X_train)
     model.add(norm_layer)
-    model.add(LSTM(60, return_sequences=False, activation="tanh", input_shape=(window_size, num_variables),))
+    model.add(LSTM(112, return_sequences=False, activation="tanh", input_shape=(window_size, num_variables),))
     model.add(Dropout(0.25))
-    model.add(Dense(num_outputs, activation="tanh", kernel_regularizer=L1L2(l1=0, l2=0.002)))
-    opt = Adam(learning_rate=0.00005)
+    model.add(Dense(num_outputs, activation="tanh", kernel_regularizer=L1L2(l1=0, l2=0.00018)))
+    opt = Adam(learning_rate=0.000095)
     model.compile(loss="mean_squared_error", optimizer=opt, metrics=["accuracy"])
     return model
 
@@ -76,6 +76,32 @@ def MHA_bi_lstm_model(window_size, num_variables, X_train, num_outputs):
     model.add(Bidirectional(LSTM(36)))
     model.add(Dense(num_outputs, activation="tanh", kernel_regularizer=L1L2(l1=0, l2=0.00043)))
     opt = Adam(learning_rate=0.0000926)
+    model.compile(loss="mean_squared_error", optimizer=opt, metrics=["accuracy"])
+    return model
+
+
+def transformer_model(window_size, num_variables, X_train, num_outputs):
+    input_layer = Input(shape=(window_size, num_variables))
+    
+    # Multi-Head Self-Attention Layer
+    attention = MultiHeadAttention(num_heads=4, key_dim=64)(input_layer, input_layer)
+    attention = Dropout(0.1)(attention)
+    add_attention = Add()([input_layer, attention])
+    attention = LayerNormalization(epsilon=1e-6)(add_attention)
+    
+    # Feed-Forward Neural Network
+    feed_forward = Conv1D(filters=64, kernel_size=1, activation='relu')(attention)
+    feed_forward = Conv1D(filters=12, kernel_size=1)(feed_forward)
+    feed_forward = Dropout(0.1)(feed_forward)
+    add_feed_forward = Add()([attention, feed_forward])
+    transformer_output = LayerNormalization(epsilon=1e-6)(add_feed_forward)
+    
+    # Output Layer
+    output_layer = Flatten()(transformer_output)
+    output_layer = Dense(num_outputs, activation="tanh", kernel_regularizer=L1L2(l1=0, l2=0.00018))(output_layer)
+    
+    model = Model(inputs=input_layer, outputs=output_layer)
+    opt = Adam(learning_rate=0.000926)
     model.compile(loss="mean_squared_error", optimizer=opt, metrics=["accuracy"])
     return model
 

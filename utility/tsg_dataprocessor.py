@@ -40,7 +40,7 @@ class DataProcessor:
             
             best_hps = tuner.get_best_hyperparameters()[0]
             print(f"Optimized Hyperparameters:")
-            try:
+            try: # MHA bilstm model
                 print(
                     f"""
                 units_1 : {best_hps.get('units_1')}
@@ -54,6 +54,8 @@ class DataProcessor:
                 """
                 )
             except:
+                pass
+            try: # lstm model
                 print(
                     f"""
                 units_1 : {best_hps.get('units_1')}
@@ -63,6 +65,20 @@ class DataProcessor:
                 batch_size : {best_hps.get('batch_size')}
                 """
                 )
+            except:
+                pass
+            try: # stacked lstm model
+                print(
+                    f"""
+                units_1 : {best_hps.get('units_1')}
+                units_4 : {best_hps.get('dropout_1')}
+                regularizer : {best_hps.get('regularizer')}
+                learning_rate : {best_hps.get('learning_rate')}
+                batch_size : {best_hps.get('batch_size')}
+                """
+                )
+            except:
+                pass
             batch_size = best_hps.get("batch_size")
             model = tuner.hypermodel.build(best_hps)
             
