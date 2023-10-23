@@ -88,45 +88,45 @@ class MyHyperModel(kt.HyperModel):
     def build(self, hp):
         window_Size = self.window_size
         X_train = self.X_train
+        
+        # hp_units1 = hp.Int("units_1", min_value=64, max_value=160, step=8)
+        # hp_units2 = hp.Int("units_2", min_value=32, max_value=160, step=8)
+        # hp_units3 = hp.Int("units_3", min_value=4, max_value=8, step = 4)
+        # hp_units4 = hp.Float("dropout_1", min_value=0.05, max_value=0.4, step=0.05)
+        # hp_units5 = hp.Int("units_4", min_value=4, max_value=60, step = 8)
+        # hp_regularizer = hp.Float("regularizer", min_value=0.0001, max_value=0.001)
+        # hp_learning_rate = hp.Float("learning_rate", min_value=1e-5, max_value=1e-4, sampling="LOG")
+        
+        # model = Sequential()
+        # norm_layer = Normalization(input_shape=(window_Size, 12))
+        # norm_layer.adapt(X_train)
+        # model.add(norm_layer)
+        # regularizer = L1L2(l1=0, l2=hp_regularizer)
+        # model.add(Conv1D(hp_units1, 3, activation='relu'))
+        # model.add(MaxPooling1D(2)) 
+        # model.add(Bidirectional(LSTM(hp_units2, return_sequences=True), input_shape=(80, 6),))
+        # model.add(MHeadAttention(head_num=hp_units3))
+        # model.add(Dropout(hp_units4))
+        # model.add(Bidirectional(LSTM(hp_units5)))
+
+
         hp_units1 = hp.Int("units_1", min_value=64, max_value=160, step=8)
-        hp_units2 = hp.Int("units_2", min_value=32, max_value=160, step=8)
-        hp_units3 = hp.Int("units_3", min_value=4, max_value=8, step = 4)
-        hp_units4 = hp.Float("dropout_1", min_value=0.05, max_value=0.4, step=0.05)
-        hp_units5 = hp.Int("units_4", min_value=4, max_value=60, step = 8)
+        hp_units4 = hp.Float("dropout_1", min_value=0.0, max_value=0.3, step=0.05)
         hp_regularizer = hp.Float("regularizer", min_value=0.0001, max_value=0.001)
         hp_learning_rate = hp.Float("learning_rate", min_value=1e-5, max_value=1e-4, sampling="LOG")
-        
+
         model = Sequential()
         norm_layer = Normalization(input_shape=(window_Size, 12))
         norm_layer.adapt(X_train)
         model.add(norm_layer)
-        regularizer = L1L2(l1=0, l2=hp_regularizer)
-        model.add(Conv1D(hp_units1, 3, activation='relu'))
-        model.add(MaxPooling1D(2)) 
-        model.add(Bidirectional(LSTM(hp_units2, return_sequences=True), input_shape=(80, 6),))
-        model.add(MHeadAttention(head_num=hp_units3))
+        model.add(LSTM(hp_units1, return_sequences=False, activation="tanh"))
         model.add(Dropout(hp_units4))
-        model.add(Bidirectional(LSTM(hp_units5)))
-
-
-        # hp_units1 = hp.Int("units_1", min_value=64, max_value=160, step=8)
-        # hp_units4 = hp.Float("dropout_1", min_value=0.0, max_value=0.3, step=0.05)
-        # hp_regularizer = hp.Float("regularizer", min_value=0.0001, max_value=0.001)
-        # hp_learning_rate = hp.Float("learning_rate", min_value=1e-5, max_value=1e-4, sampling="LOG")
-        # model = Sequential()
-        # norm_layer = Normalization(input_shape=(window_Size, 6))
-        # norm_layer.adapt(X_train)
-        # model.add(norm_layer)
-        # regularizer = L1L2(l1=0, l2=hp_regularizer)
-        # model.add(LSTM(hp_units1, return_sequences=False, activation="tanh"))
-        # model.add(Dropout(hp_units4))
+        regularizer = L1L2(l1=0, l2=hp_regularizer)
 
 
         model.add(Dense(1, activation="tanh", kernel_regularizer=regularizer))
         model.summary()
-        model.compile(
-            loss="mean_squared_error", optimizer=Adam(learning_rate=hp_learning_rate),
-            metrics=["accuracy"],)
+        model.compile(loss="mean_squared_error", optimizer=Adam(learning_rate=hp_learning_rate), metrics=["accuracy"],)
         return model
 
     def fit(self, hp, model, *args, **kwargs):

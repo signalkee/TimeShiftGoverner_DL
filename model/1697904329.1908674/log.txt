@@ -1,5 +1,0 @@
-Batch size: 256  |  window size: 60  |  epoch: 200
-Saving prediction...
-Prediction save complete!
-MAE:  0.12029122531061882   MSE:  0.026406611314950285    RMSE:  0.16250111173450563   R2:  0.9953814711348328
-finished

@@ -1,0 +1,35 @@
+Model: "sequential"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ normalization (Normalizatio  (None, 60, 12)           25        
+ n)                                                              
+                                                                 
+ conv1d (Conv1D)             (None, 58, 96)            3552      
+                                                                 
+ max_pooling1d (MaxPooling1D  (None, 29, 96)           0         
+ )                                                               
+                                                                 
+ lstm (LSTM)                 (None, 29, 64)            41216     
+                                                                 
+ dropout (Dropout)           (None, 29, 64)            0         
+                                                                 
+ conv1d_1 (Conv1D)           (None, 28, 32)            4128      
+                                                                 
+ max_pooling1d_1 (MaxPooling  (None, 14, 32)           0         
+ 1D)                                                             
+                                                                 
+ lstm_1 (LSTM)               (None, 16)                3136      
+                                                                 
+ dense (Dense)               (None, 1)                 17        
+                                                                 
+=================================================================
+Total params: 52,074
+Trainable params: 52,049
+Non-trainable params: 25
+_________________________________________________________________
+Batch size: 512  |  window size: 60  |  epoch: 200
+Saving prediction...
+Prediction save complete!
+MAE:  0.12724593064959056   MSE:  0.026068084487778028    RMSE:  0.1614561379687314   R2:  0.993954966498833
+Finished

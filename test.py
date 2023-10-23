@@ -1,6 +1,8 @@
-from utility.tsg_util import *
-from utility.tsg_plot import *
+from utility.tsg_dataloader import *
+from utility.tsg_preprocessor import *
+from utility.tsg_logger import *
 from utility.tsg_models import *
+from utility.values import *
 
 
 # Parameter
@@ -10,35 +12,20 @@ num_outputs=1
 window_size = 60
 batch_size = 512
 epochs = 1
+file_names = ["sample_data4learning.mat", "sample_data4learning2.mat"]
 
-# Import Data
-mat_file_name= dataMainPath + "sampe_data4learning.mat"
-mat_file=scipy.io.loadmat(mat_file_name)
-mat_file_name2= dataMainPath + "sampe_data4learning2.mat"
-mat_file2=scipy.io.loadmat(mat_file_name2)
-concatenated_data = np.concatenate((mat_file['Traj_samples'], mat_file2['Traj_samples']), axis=2)
 
-# Input Parameters - (2nd ~ 13th elements)
-time_Deputy_Chief=np.real(concatenated_data[:,1:13])
+# Load and split data from multiple .mat files
+dataLoader = DataLoader(dataMainPath=dataMainPath)
+dataLoader.load_mat_files(file_names)
+X_train_val, Y_train_val, X_test, Y_test = dataLoader.split_data(train_val_samples=20, test_samples=4)    
 
-# Output Parameters - Time shift parameter (24th element)
-tbackward=np.real(concatenated_data[:,23])
-
-# Split data into training/validation and test parts
-# Train & Val: 20 differenct initial conditions
-# Test: 4 differenct initial conditions
-X_train_val = time_Deputy_Chief[:, :, :40]  
-Y_train_val = tbackward[:, :40]  
-X_test = time_Deputy_Chief[:, :, 40:] 
-Y_test = tbackward[:, 40:]        
-
-# Calculate normalization scaler
-output_scaler= GenerateNormalization(Y_train_val, Y_test)
-Y_train_val_norm, Y_test_norm = NormalizeAllOutputDataWithScaler(output_scaler, Y_train_val, Y_test)
-
-# Sliding window of training/validation & test parts
-X_sequenced, Y_sequenced = make_sliding_window(X_train_val, Y_train_val_norm, window_size)
-X_test_sequenced, Y_test_sequenced = make_sliding_window(X_test, Y_test_norm, window_size)
+# Preprocess data
+preprocessor = TimeSeriesPreprocessor(window_size)
+output_scaler = preprocessor.generate_normalization(Y_train_val, Y_test)
+Y_train_val_norm, Y_test_norm = preprocessor.normalize_all_output_data_with_scaler(Y_train_val, Y_test)
+X_sequenced, Y_sequenced = preprocessor.make_sliding_window(X_train_val, Y_train_val_norm)
+X_test_sequenced, Y_test_sequenced = preprocessor.make_sliding_window(X_test, Y_test_norm)
 
 
 # HyperParameter Tuning with KerasTuner    
@@ -101,25 +88,12 @@ history = model.fit(
 # De-normalize Output
 pred_norm = model.predict(X_test_sequenced)
 pred = pred_norm    
-pred, Y_test_sequenced = DeNormalizeOutputData(output_scaler, pred_norm, Y_test_sequenced)
+pred, Y_test_sequenced = preprocessor.denormalize_output_data(output_scaler, pred_norm, Y_test_sequenced)
 
 # Save Data
-savetime = time()
-modelpath = f"{modelMainPath}{savetime}"
-createDirectory(modelpath)
-model.save(modelpath)
-model_log_save(model, batch_size, window_size, epochs, pred, Y_test_sequenced, modelpath)
+logger = ModelLogger(modelMainPath=modelMainPath)
+model_path = logger.save_model(model)
+logger.model_log_save(batch_size, window_size, epochs, pred, Y_test_sequenced)
 
 
-
-
-
-
-
-# Plot model history
-# acc = [0.0] + history.history["accuracy"]
-# loss = history.history["loss"]
-# val_acc = [0.0] + history.history["val_accuracy"]
-# val_loss = history.history["val_loss"]
-# plot_model_history(acc, val_acc, loss, val_loss)
 
