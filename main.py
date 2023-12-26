@@ -1,10 +1,10 @@
 from utility.tsg_dataprocessor import *
 
 # Input
-Model_load = False
+Model_load = True
 file_names = ["sample_data4learning.mat", "sample_data4learning2.mat"]
 # file_names = ["sample_data4learning.mat"]
-model2load = "1697907290.0108838"
+model2load = "lstm_200"
 
 # Parameter
 num_variables = 12

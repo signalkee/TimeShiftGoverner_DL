@@ -87,52 +87,29 @@ class DataProcessor:
         pred, Y_test_sequenced = self.preprocessor.denormalize_output_data(output_scaler, predictions, Y_test_sequenced)
 
         model_path = self.logger.save_model(model)
-        self.logger.model_log_save(batch_size, self.window_size, epochs, pred, Y_test_sequenced)
+        self.logger.model_log_save(model, batch_size, self.window_size, epochs, pred, Y_test_sequenced)
 
-    def check_model(self, model_path, output_scaler, X_test_sequenced, Y_test_sequenced, batch_size, epochs):
-        # Load Model
-        model = LSTMModel(window_size=self.window_size, num_variables=self.num_variables, num_outputs=self.num_outputs)  
-        model.load_state_dict(torch.load(os.path.join(model_path, 'model.pth')))
-        model.to(self.device)
+    def check_model(self, model2load, output_scaler, X_test_sequenced, Y_test_sequenced, batch_size, epochs):
+        loaded_model = LSTMModel(window_size=self.window_size, num_variables=self.num_variables, num_outputs=self.num_outputs)
         
-        test_loader, _ = DataLoaderWrapper.create_dataloaders(X_test_sequenced, Y_test_sequenced, None, None, batch_size)
+        model_path = f"{modelMainPath}{model2load}"
+        loaded_model.load_state_dict(torch.load(os.path.join(model_path, 'model.pth')))
+        loaded_model.to(self.device)
+
+        test_loader = DataLoader(TimeSeriesDataset(X_test_sequenced, Y_test_sequenced), batch_size=batch_size, shuffle=False)
         
-        model.eval()
+        loaded_model.eval()
         predictions = []
         with torch.no_grad():
             for inputs, _ in test_loader:
                 inputs = inputs.to(self.device)
-                outputs = model(inputs)
-                predictions.append(outputs.cpu().numpy())
-        
-        pred_norm = np.concatenate(predictions, axis=0)
-        pred, Y_test_sequenced = self.preprocessor.denormalize_output_data(output_scaler, pred_norm, Y_test_sequenced)
-        
-        self.logger.save_model(model)
-        self.logger.model_log_save(batch_size, self.window_size, epochs, pred, Y_test_sequenced)
+                outputs = loaded_model(inputs)
+                predictions.extend(outputs.cpu().numpy())
 
-    # def check_model(self, model2load, output_scaler, X_test_sequenced, Y_test_sequenced, batch_size, epochs):
-    #     loaded_model = LSTMModel(window_size=self.window_size, num_variables=self.num_variables, num_outputs=self.num_outputs)
-        
-    #     model_path = f"{self.modelMainPath}{model2load}"
-    #     loaded_model.load_state_dict(torch.load(os.path.join(model_path, 'model.pth')))
-    #     loaded_model.to(self.device)
+        pred, Y_test_sequenced = self.preprocessor.denormalize_output_data(output_scaler, predictions, Y_test_sequenced)
 
-    #     test_loader = DataLoader(TimeSeriesDataset(X_test_sequenced, Y_test_sequenced), batch_size=batch_size, shuffle=False)
-        
-    #     # Predict and collect predictions
-    #     loaded_model.eval()
-    #     predictions = []
-    #     with torch.no_grad():
-    #         for inputs, _ in test_loader:
-    #             inputs = inputs.to(self.device)
-    #             outputs = loaded_model(inputs)
-    #             predictions.extend(outputs.cpu().numpy())
-
-    #     pred, Y_test_sequenced = self.preprocessor.denormalize_output_data(output_scaler, predictions, Y_test_sequenced)
-
-    #     self.logger.save_model(loaded_model)
-    #     self.logger.model_log_save(batch_size, self.window_size, epochs, pred, Y_test_sequenced)
+        self.logger.save_model(loaded_model)
+        self.logger.model_log_save(loaded_model, batch_size, self.window_size, epochs, pred, Y_test_sequenced)
 
 
 

@@ -7,5 +7,4 @@ LSTMModel(
 Batch size: 512  |  window size: 60  |  epoch: 200
 Saving prediction...
 Prediction save complete!
-MAE:  0.08956585840210372   MSE:  0.025160027931337557    RMSE:  0.1586191285165114   R2:  0.9941655394048404
 Finished

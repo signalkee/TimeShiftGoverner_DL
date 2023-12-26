@@ -1,0 +1,23 @@
+Model: "sequential"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ normalization (Normalizatio  (None, 60, 12)           25        
+ n)                                                              
+                                                                 
+ lstm (LSTM)                 (None, 60)                17520     
+                                                                 
+ dropout (Dropout)           (None, 60)                0         
+                                                                 
+ dense (Dense)               (None, 1)                 61        
+                                                                 
+=================================================================
+Total params: 17,606
+Trainable params: 17,581
+Non-trainable params: 25
+_________________________________________________________________
+Batch size: 512  |  window size: 60  |  epoch: 200
+Saving prediction...
+Prediction save complete!
+MAE:  0.10722698641619577   MSE:  0.021391310151067454    RMSE:  0.14625768407529038   R2:  0.9950394826072594
+Finished

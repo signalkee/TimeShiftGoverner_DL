@@ -33,20 +33,26 @@ class ModelLogger:
         self.modelSavedPath = modelpath
         return modelpath
 
-    def model_log_save(self, batch_size, window_size, epochs, pred, Y_test_sequenced):
-        log_file_path = os.path.join(self.modelSavedPath, 'log.txt')
-        with open(log_file_path, 'w') as log_file:
-            print(f"Batch size: {batch_size}  |  window size: {window_size}  |  epoch: {epochs}", file=log_file)
-            print("Saving prediction...", file=log_file)
-            preddf, Y_testdf = pd.DataFrame(pred), pd.DataFrame(Y_test_sequenced)
-            preddf.to_csv(os.path.join(self.modelSavedPath, 'pred.csv'))
-            Y_testdf.to_csv(os.path.join(self.modelSavedPath, 'true.csv'))
-            print("Prediction save complete!", file=log_file)
+    def model_log_save(self, model, batch_size, window_size, epochs, pred, Y_test_sequenced):
+        if self.model is None:
+            raise ValueError("Model has not been saved. Call 'save_model' first.")
 
-            self.plot_predictions(pred, Y_test_sequenced)
-            self.calculate_performance(pred, Y_test_sequenced)
+        log_file = open(f"{self.modelSavedPath}/log.txt", 'w')
+        sys.stdout = log_file
 
-            print("Finished", file=log_file)
+        print(str(model))
+        print(f"Batch size: {batch_size}  |  window size: {window_size}  |  epoch: {epochs}")
+        print("Saving prediction...")
+        preddf, Y_testdf = pd.DataFrame(pred), pd.DataFrame(Y_test_sequenced)
+        preddf.to_csv(os.path.join(self.modelSavedPath, 'pred.csv'))
+        Y_testdf.to_csv(os.path.join(self.modelSavedPath, 'true.csv'))
+        print("Prediction save complete!")
+
+        self.plot_predictions(pred, Y_test_sequenced)
+        self.calculate_performance(pred, Y_test_sequenced)
+
+        print("Finished")
+        sys.stdout.close()
 
     def calculate_performance(self, pred, Y_test):
         mae_sub = np.mean(np.abs(Y_test - pred))
