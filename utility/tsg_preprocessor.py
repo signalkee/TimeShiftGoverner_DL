@@ -19,7 +19,7 @@ class TimeSeriesPreprocessor:
         y_test_data_output = np.real(test_data_output).reshape(-1, 1)
         data_output = np.concatenate([y_train_data_output, y_test_data_output], axis=0)
 
-        normalized_data = self.scaler.fit_transform(data_output)
+        self.scaler.fit_transform(data_output)
         return self.scaler
 
     def normalize_all_output_data_with_scaler(self, train_data_output, test_data_output):
@@ -55,9 +55,9 @@ class TimeSeriesPreprocessor:
         return x_sequenced, y_sequenced
 
     def denormalize_output_data(self, scaler, pred_norm, Y_test):
-        pred = pred_norm
-        pred = scaler.inverse_transform(pred_norm.reshape(-1,1)).reshape(-1)
-        Y_test = scaler.inverse_transform(Y_test.reshape(-1,1)).reshape(-1)
+        pred_norm = np.array(pred_norm).reshape(-1, 1)
+        pred = scaler.inverse_transform(pred_norm).flatten()
+        Y_test = scaler.inverse_transform(Y_test.reshape(-1, 1)).flatten()
 
         return pred, Y_test
 

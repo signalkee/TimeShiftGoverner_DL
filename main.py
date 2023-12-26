@@ -1,7 +1,6 @@
 from utility.tsg_dataprocessor import *
 
 # Input
-Param_tuning = False
 Model_load = False
 file_names = ["sample_data4learning.mat", "sample_data4learning2.mat"]
 # file_names = ["sample_data4learning.mat"]
@@ -21,12 +20,10 @@ if __name__ == '__main__':
     
     if Model_load:
         data_processor.check_model(model2load, output_scaler, X_test_sequenced, Y_test_sequenced, batch_size, epochs)
-    
-    else:    
-        model = transformer_model(window_size, num_variables, X_sequenced, num_outputs)
+    else:
+        # Define and train the model
+        model = LSTMModel(window_size, num_variables, num_outputs)
+        model = data_processor.train_model(model, X_sequenced, Y_sequenced, epochs, batch_size)
         
-        model, batch_size = data_processor.perform_hyperparameter_tuning(Param_tuning, X_sequenced, Y_sequenced, model, batch_size)
-        model, history = data_processor.train_model(model, X_sequenced, Y_sequenced, epochs, batch_size)
+        # Denormalize and save the results
         data_processor.denormalize_and_save_data(model, output_scaler, X_test_sequenced, Y_test_sequenced, batch_size, epochs)
-    
-

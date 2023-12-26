@@ -1,0 +1,4 @@
+Batch size: 512  |  window size: 60  |  epoch: 10
+Saving prediction...
+Prediction save complete!
+Finished

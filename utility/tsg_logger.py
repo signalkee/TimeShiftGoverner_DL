@@ -3,6 +3,7 @@ import sys
 import time
 import numpy as np
 import pandas as pd
+import torch
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error as mse
 from sklearn.metrics import mean_absolute_error as mae
@@ -28,35 +29,24 @@ class ModelLogger:
         self.savetime = time.time()
         modelpath = f"{self.modelMainPath}{self.savetime}"
         self.create_directory(modelpath)
-        model.save(modelpath)
-        self.model = model
+        torch.save(model.state_dict(), os.path.join(modelpath, 'model.pth'))
         self.modelSavedPath = modelpath
         return modelpath
 
     def model_log_save(self, batch_size, window_size, epochs, pred, Y_test_sequenced):
-        if self.model is None:
-            raise ValueError("Model has not been saved. Call 'save_model' first.")
-        
-        log_file = open(f"{self.modelSavedPath}/log.txt", 'w')
-        sys.stdout = log_file
+        log_file_path = os.path.join(self.modelSavedPath, 'log.txt')
+        with open(log_file_path, 'w') as log_file:
+            print(f"Batch size: {batch_size}  |  window size: {window_size}  |  epoch: {epochs}", file=log_file)
+            print("Saving prediction...", file=log_file)
+            preddf, Y_testdf = pd.DataFrame(pred), pd.DataFrame(Y_test_sequenced)
+            preddf.to_csv(os.path.join(self.modelSavedPath, 'pred.csv'))
+            Y_testdf.to_csv(os.path.join(self.modelSavedPath, 'true.csv'))
+            print("Prediction save complete!", file=log_file)
 
-        stringlist = []
-        self.model.summary(print_fn=lambda x: stringlist.append(x))
-        short_model_summary = "\n".join(stringlist)
-        print(short_model_summary)
+            self.plot_predictions(pred, Y_test_sequenced)
+            self.calculate_performance(pred, Y_test_sequenced)
 
-        print(f"Batch size: {batch_size}  |  window size: {window_size}  |  epoch: {epochs}")
-        print("Saving prediction...")
-        preddf, Y_testdf = pd.DataFrame(pred), pd.DataFrame(Y_test_sequenced)
-        preddf.to_csv(f"{self.modelSavedPath}/pred.csv")
-        Y_testdf.to_csv(f"{self.modelSavedPath}/true.csv")
-        print("Prediction save complete!")
-
-        self.plot_predictions(pred, Y_test_sequenced)
-        self.calculate_performance(pred, Y_test_sequenced)
-
-        print("Finished")
-        sys.stdout.close()
+            print("Finished", file=log_file)
 
     def calculate_performance(self, pred, Y_test):
         mae_sub = np.mean(np.abs(Y_test - pred))
