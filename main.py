@@ -1,7 +1,7 @@
 from utility.tsg_dataprocessor import *
 
 # Input
-Model_load = True
+Model_load = False
 file_names = ["sample_data4learning.mat", "sample_data4learning2.mat"]
 # file_names = ["sample_data4learning.mat"]
 model2load = "lstm_200"
@@ -20,9 +20,10 @@ if __name__ == '__main__':
     
     if Model_load:
         data_processor.check_model(model2load, output_scaler, X_test_sequenced, Y_test_sequenced, batch_size, epochs)
-    else:
+    else:        
         # Define and train the model
         model = LSTMModel(window_size, num_variables, num_outputs)
+
         model = data_processor.train_model(model, X_sequenced, Y_sequenced, epochs, batch_size)
         
         # Denormalize and save the results

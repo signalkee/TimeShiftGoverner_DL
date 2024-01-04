@@ -1,0 +1,16 @@
+StackedLSTMModel(
+  (norm_layer): BatchNorm1d(12, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (conv1): Conv1d(12, 96, kernel_size=(3,), stride=(1,))
+  (pool): MaxPool1d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False)
+  (lstm1): LSTM(96, 64, batch_first=True)
+  (dropout1): Dropout(p=0.15, inplace=False)
+  (conv2): Conv1d(64, 32, kernel_size=(2,), stride=(1,))
+  (lstm2): LSTM(32, 16, batch_first=True)
+  (dropout2): Dropout(p=0.15, inplace=False)
+  (fc): Linear(in_features=16, out_features=1, bias=True)
+)
+Batch size: 512  |  window size: 60  |  epoch: 200
+Saving prediction...
+Prediction save complete!
+MAE:  0.07587357435088715   MSE:  0.026749560859601573    RMSE:  0.16355292984108102   R2:  0.9937969361878657
+Finished

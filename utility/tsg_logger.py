@@ -34,8 +34,8 @@ class ModelLogger:
         return modelpath
 
     def model_log_save(self, model, batch_size, window_size, epochs, pred, Y_test_sequenced):
-        if self.model is None:
-            raise ValueError("Model has not been saved. Call 'save_model' first.")
+        # if self.model is None:
+        #     raise ValueError("Model has not been saved. Call 'save_model' first.")
 
         log_file = open(f"{self.modelSavedPath}/log.txt", 'w')
         sys.stdout = log_file

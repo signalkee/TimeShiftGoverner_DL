@@ -1,0 +1,40 @@
+TransformerModel(
+  (embedding): Linear(in_features=12, out_features=256, bias=True)
+  (pos_encoder): PositionalEncoding(
+    (dropout): Dropout(p=0.15, inplace=False)
+  )
+  (transformer_encoder): TransformerEncoder(
+    (layers): ModuleList(
+      (0): TransformerEncoderLayer(
+        (self_attn): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=256, out_features=256, bias=True)
+        )
+        (linear1): Linear(in_features=256, out_features=512, bias=True)
+        (dropout): Dropout(p=0.15, inplace=False)
+        (linear2): Linear(in_features=512, out_features=256, bias=True)
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.15, inplace=False)
+        (dropout2): Dropout(p=0.15, inplace=False)
+      )
+      (1): TransformerEncoderLayer(
+        (self_attn): MultiheadAttention(
+          (out_proj): _LinearWithBias(in_features=256, out_features=256, bias=True)
+        )
+        (linear1): Linear(in_features=256, out_features=512, bias=True)
+        (dropout): Dropout(p=0.15, inplace=False)
+        (linear2): Linear(in_features=512, out_features=256, bias=True)
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.15, inplace=False)
+        (dropout2): Dropout(p=0.15, inplace=False)
+      )
+    )
+  )
+  (fc_out): Linear(in_features=256, out_features=1, bias=True)
+)
+Batch size: 512  |  window size: 60  |  epoch: 200
+Saving prediction...
+Prediction save complete!
+MAE:  1.749146231290239   MSE:  6.76730169192842    RMSE:  2.6014037925567073   R2:  -0.5692969485115467
+Finished
